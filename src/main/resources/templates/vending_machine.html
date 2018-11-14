@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html  xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico"/>
+
+    <title>FixxiT Java Technical Interview Assignment</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.1.3/css/bootstrap.min.css} "/>
+
+    <link rel="stylesheet" media="screen" href="../static/css/style.css"
+          th:href="@{css/style.css}"/>
+
+</head>
+<body>
+<div class="container">
+    <h1>Vending Machine</h1>
+    <div class="card">
+        <div class="card-header bg-info text-center">Stock List</div>
+        <div class="card-body">
+            <div th:if="${not #lists.isEmpty(vending_machine.stocks)}">
+                <table class="table table-striped" id="myTable">
+                    <tr>
+                        <th>Drink</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                    </tr>
+                    <tr th:each="stock : ${vending_machine.stocks}">
+                        <td th:text="${stock.value.drink}"></td>
+                        <td th:text="${stock.value.drink.price}"></td>
+                        <td th:text="${stock.value.amountOfStock}"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-secondary text-center">Buy Stock</div>
+        <div class="card-body">
+            <form action="#" th:action="@{/vending_machine}" th:object="${vending_machine}" method="post">
+                <div class="form-group">
+                    <div th:if="${not #lists.isEmpty(vending_machine.stocks)}">
+                        <label for="stocks">Select Drink</label>
+                        <select class="form-control" id="stocks" name="stocks" th:field="*{stockId}">
+                            <option th:each="stock : ${vending_machine.stocks}" th:value="${stock.key}" th:text="${stock.value.drink}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="quanity">Quanity</label>
+                    <input type="number" class="form-control" id="quanity" th:field="*{quantity}" name="quantity" th:min="${1}" th:max="${vending_machine.maxStocks.get(1)}">
+                </div>
+                <div class="form-group">
+                    <div th:if="${not #lists.isEmpty(vending_machine.coinOption)}">
+                        <label for="coins">Insert Coin</label>
+                        <select class="form-control" id="coins" th:field="*{coin}" >
+                            <option th:each="coin : ${vending_machine.coinOption}" th:value="${coin.key}" th:text="${coin.value}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center">
+                    <div class="col-md-6 d-flex justify-content-end">
+                        <button type="submit" value="Submit"  class="btn btn-primary mb-2">Submit</button>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-start">
+                        <button type="reset"  value="Reset" class="btn btn-secondary mb-2">Reset</button>
+                    </div>
+                </div>
+            </form>
+            <div class="alert alert-danger" th:if="${not vending_machine.valid}">Please enter Enough Coins</div>
+            <div class="alert alert-success" th:if="${vending_machine.valid and vending_machine.stockId!=null}">
+                Thank you! <span th:if="${vending_machine.coin!=null}">Your change is </span><span th:text="${vending_machine.coinOption.get(vending_machine.coin)}"></span> . Enjoy your drink</div>
+        </div>
+    </div>
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+
+    $(function () {
+        $('#stocks').on("change", function() {
+            var stocksId = $('#stocks option:selected').val();
+            console.log(stocksId);
+            var table = document.getElementById('myTable');
+            var json = [];
+            for (var r = 1, n = table.rows.length; r < n; r++) {
+                json.push(table.rows[r].cells[2].innerHTML);
+            }
+            var x = document.getElementById("quanity");
+            x.setAttribute("type", "number");
+            x.setAttribute("max", json[stocksId-1]);
+        });
+    });
+</script>
+</body>
+
+</html>
